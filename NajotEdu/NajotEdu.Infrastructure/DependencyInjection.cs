@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,58 +13,56 @@ using NajotEdu.Infrastructure.Presistence.Services;
 using NajotEdu.Infrastructure.Providers;
 using System.Text;
 
-namespace NajotEdu.Infrastructure
+namespace NajotEdu.Infrastructure;
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    // Bu extention class bulib u orqali qurayotgan appimizni
+    // build qilishdan oldin ularga kerakli servicelarni yaratib
+    // add qilib quyamiz bundan proggrom.cs imizda code kupayib ketmaydi
+
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Bu extention class bulib u orqali qurayotgan appimizni
-        // build qilishdan oldin ularga kerakli servicelarni yaratib
-        // add qilib quyamiz bundan proggrom.cs imizda code kupayib ketmaydi
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, JWTService>();
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+        services.AddScoped<IHashProvider, HashProvider>();
 
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        // app.UseAuthentication(); - middlewarening nostroykasini qilamiz bu eng oddiylaridan
 
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<ITokenService, JWTService>();
-            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-            services.AddScoped<IHashProvider, HashProvider>();
-
-            // app.UseAuthentication(); - middlewarening nostroykasini qilamiz bu eng oddiylaridan
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidAudience = configuration["JWT:ValidAudience"],
-                        ValidIssuer = configuration["JWT:ValidIssuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-                    };
-                });
-
-            /*  
-                app.UseAuthorization(); - middlewarening nostroykasini qilamiz bu eng oddiylaridan
-                services.AddAuthorization bu holatda  services.AddAuthentication buning shartlaridan utib 
-                olgandan kegin [Authorize(Policy = "AdminAction")] kabi atributlarni controllerning ustiga 
-                yozib ketish kerak va shunda quyidagi shartni ham qanoatlantirsagini dasturga kira oladi.
-                Agar atributni [Authorize] kabi yozilsa ham quyidagi shartlarga kirmaydi.
-            */
-
-            services.AddAuthorization(options =>
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                options.AddPolicy("Admin", policy =>
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    policy.RequireClaim("Role", UserRole.Admin.ToString());
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidAudience = configuration["JWT:ValidAudience"],
+                    ValidIssuer = configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+                };
             });
 
-            return services;
-        }
+        /*  
+            app.UseAuthorization(); - middlewarening nostroykasini qilamiz bu eng oddiylaridan
+            services.AddAuthorization bu holatda  services.AddAuthentication buning shartlaridan utib 
+            olgandan kegin [Authorize(Policy = "AdminAction")] kabi atributlarni controllerning ustiga 
+            yozib ketish kerak va shunda quyidagi shartni ham qanoatlantirsagini dasturga kira oladi.
+            Agar atributni [Authorize] kabi yozilsa ham quyidagi shartlarga kirmaydi.
+        */
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+            {
+                policy.RequireClaim("Role", UserRole.Admin.ToString());
+            });
+        });
+
+        return services;
     }
 }

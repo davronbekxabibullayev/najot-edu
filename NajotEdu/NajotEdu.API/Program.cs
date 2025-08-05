@@ -7,50 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var IsJwt = true;
-
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
-// shu yerda swaggerga options qushib unga olingan tokenni 
-builder.Services.AddSwaggerGen(options =>
-{
-
-    options.SwaggerDoc("V1", new OpenApiInfo()// qanday tipdagi endpoint ochishimiz yozilgan
-    {
-        Version = "V1",
-        Title = "NajotEdu",
-        Description = "NajotEdu description",
-        Extensions = {}
-
-    });
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,// shu joyda headerga tokenni qushib berishini belgilayapmiz
-        Description = "Bearer Authentication",
-        Type = SecuritySchemeType.Http
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
-        {
-            new OpenApiSecurityScheme()
-            {
-                Reference = new OpenApiReference()
-                {
-                    Id = "Bearer",
-                    Type = ReferenceType.SecurityScheme
-                }
-
-            },
-        new List<string>()
-        }
-    });
-
-});
+AddSwagger(builder);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
@@ -80,3 +41,47 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void AddSwagger(WebApplicationBuilder builder)
+{
+
+    // shu yerda swaggerga options qushib unga olingan tokenni 
+    builder.Services.AddSwaggerGen(options =>
+    {
+
+        options.SwaggerDoc("V1", new OpenApiInfo()// qanday tipdagi endpoint ochishimiz yozilgan
+        {
+            Version = "V1",
+            Title = "NajotEdu",
+            Description = "NajotEdu description",
+            Extensions = { }
+
+        });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+        {
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,// shu joyda headerga tokenni qushib berishini belgilayapmiz
+            Description = "Bearer Authentication",
+            Type = SecuritySchemeType.Http
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme()
+            {
+                Reference = new OpenApiReference()
+                {
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme
+                }
+
+            },
+        new List<string>()
+        }
+    });
+
+    });
+}

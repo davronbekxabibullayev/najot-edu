@@ -31,7 +31,7 @@ namespace NajotEdu.Application.Services
                 FullName = createStudentModel.FullName,
                 Birthdate = createStudentModel.BirthDate,
                 PhoneNumber = createStudentModel.PhoneNumber,
-                CreatedDate = DateTimeOffset.Now
+                CreatedDate = DateTimeOffset.UtcNow
             };
 
             await _applicationDbContext.Students.AddAsync(newStudent);

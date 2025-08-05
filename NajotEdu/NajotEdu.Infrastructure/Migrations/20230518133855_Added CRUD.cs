@@ -142,7 +142,7 @@ namespace NajotEdu.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "FullName", "PasswordHash", "Role", "UserName" },
-                values: new object[] { 1, "Adminbek Adminov", "442975CD735175F7C42F91322F548F7C4A606B838A992381F3C9AB48A85576C1C1864E625A1A00A2D16359395B8321E52BF4DFFB6347341141633E07C197D3D8NajotTalimQalampir", 1, "Admin" });
+                values: new object[] { 1, "Adminbek Adminov", "9116212859699694D67DC827F0959CACA4413841ED69934EFB33729A2A9430F84A30D005D8BDA417F7345259F1320DDD1D3197CB35193A7BFF8BE820F4153A8FNajotTalimQalampir", 1, "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attendences_LessonId",

@@ -20,10 +20,12 @@ namespace NajotEdu.Infrastructure.Presistence.Services
         {
             var user = await _DbContext.Users.FirstOrDefaultAsync(x => x.UserName == username);
 
+            var a = _hashProvider.GetHash(password);
             if (user == null)
             {
                 throw new Exception("bu user yuq");
             }
+
 
             else if (user.PasswordHash != _hashProvider.GetHash(password))
             {

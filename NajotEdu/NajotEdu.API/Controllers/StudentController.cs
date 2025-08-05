@@ -16,14 +16,12 @@ namespace NajotEdu.API.Controllers
             _studentService = studentService;
         }
 
-        [Authorize(Policy = "Admin")]
+        //[Authorize(Policy = "Admin")]
         [HttpPost]
-
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateStudent(CreateStudentModel createStudentModel)
         {
-            await _studentService.Create(createStudentModel);
-
-            return Ok();
+            return Ok(await _studentService.Create(createStudentModel));
         }
 
         [HttpPut]

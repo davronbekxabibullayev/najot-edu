@@ -5,10 +5,9 @@ namespace NajotEdu.Application.Models
     public class CreateStudentModel
     {
         [Required]
-        public string FullName { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime BirthDate { get; set; }
+        public string FullName { get; set; } = default;
+        public DateTimeOffset BirthDate { get; set; }
         [Required]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = default;
     }
 }
