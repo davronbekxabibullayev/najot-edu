@@ -31,13 +31,10 @@ public static class WebApplicationExtensions
                             logger.LogWarning(exception, "[{Prefix}] Exception {ExceptionType} with message {Message} detected on attempt {Retry} of {Retries}", nameof(TContext), exception.GetType().Name, exception.Message, retry, retries);
                         });
 
-            // if the sql server container is not created on run docker compose this
-            // migration can't fail for network related exception. The retry options for DbContext only 
-            // apply to transient exceptions
-            // Note that this is NOT applied when running some orchestrators (let the orchestrator to recreate the failing service)
             retry.Execute(() => InvokeSeeder(seeder, context, services));
 
-            logger.LogInformation("Migrated database associated with context {DbContextName}", typeof(TContext).Name);
+            logger.LogInformation("Migrated database associated with context {DbContextName}", 
+                typeof(TContext).Name);
         }
         catch (Exception ex)
         {
@@ -45,8 +42,10 @@ public static class WebApplicationExtensions
         }
     }
 
-    private static void InvokeSeeder<TContext>(Action<TContext, IServiceProvider> seeder, TContext context, IServiceProvider services)
-        where TContext : DbContext
+    private static void InvokeSeeder<TContext>(
+        Action<TContext, IServiceProvider> seeder, 
+        TContext context, 
+        IServiceProvider services) where TContext : DbContext
     {
         seeder(context, services);
     }
